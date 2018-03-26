@@ -411,7 +411,16 @@ void HalfEdgeMesh::Update() {
 float HalfEdgeMesh::Area() const {
   float area = 0;
   // Add code here
-  std::cerr << "Area calculation not implemented for half-edge mesh!\n";
+  //std::cerr << "Area calculation not implemented for half-edge mesh!\n";
+
+  for (int i = 0; i < mFaces.size(); i++) {
+	  Vertex v1 = v(e(mFaces[i].edge).vert);
+	  Vertex v2 = v(e(e(mFaces[i].edge).next).vert);
+	  Vertex v3 = v(e(e(mFaces[i].edge).prev).vert);
+
+	  area += (Cross((v1.pos-v2.pos), (v1.pos-v3.pos))).Length()/2;
+  }
+
   return area;
 }
 
