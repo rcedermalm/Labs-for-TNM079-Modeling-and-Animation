@@ -320,6 +320,14 @@ Vector3<float> HalfEdgeMesh::VertexNormal(size_t vertexIndex) const {
   Vector3<float> n(0, 0, 0);
 
   // Add your code here
+  std::vector<size_t> foundFaces = FindNeighborFaces(vertexIndex);
+
+  for (int i = 0; i < foundFaces.size(); i++) {
+	  n += f(foundFaces[i]).normal;
+  }
+
+  n = n.Normalize();
+
   return n;
 }
 
