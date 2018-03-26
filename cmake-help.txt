@@ -1,0 +1,4 @@
+1. Start cmake
+2. If there are cache, go to File -> delete cache
+3. Press Configure, choose compiler: Visual Studio 14 2015 Win64
+4. Press Generate and then Open Project.
