@@ -250,15 +250,14 @@ HalfEdgeMesh::FindNeighborVertices(size_t vertexIndex) const {
   std::vector<size_t> oneRing;
 
   // Add your code here
-  /*oneRing.push_back(vertexIndex);
-
-  size_t index = 5000;
+  HalfEdge edge = e(vertexIndex);
+  size_t index = -1;
 
   while (index != vertexIndex) {
-	  index = vertexIndex
+	  oneRing.push_back(e(edge.next).vert);
+	  index = e(edge.prev).pair;
+	  edge = e(index);
   }
-  */
-  
 
   return oneRing;
 }
