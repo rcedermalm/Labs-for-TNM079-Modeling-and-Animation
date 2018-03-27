@@ -248,8 +248,6 @@ std::vector<size_t>
 HalfEdgeMesh::FindNeighborVertices(size_t vertexIndex) const {
   // Collected vertices, sorted counter clockwise!
   std::vector<size_t> oneRing;
-
-  // Add your code here
   HalfEdge edge = e(vertexIndex);
   size_t index = -1;
 
@@ -270,8 +268,6 @@ HalfEdgeMesh::FindNeighborVertices(size_t vertexIndex) const {
 std::vector<size_t> HalfEdgeMesh::FindNeighborFaces(size_t vertexIndex) const {
   // Collected faces, sorted counter clockwise!
   std::vector<size_t> foundFaces;
-
-  // Add your code here
   HalfEdge edge = e(vertexIndex);
   size_t index = -1;
 
@@ -286,8 +282,33 @@ std::vector<size_t> HalfEdgeMesh::FindNeighborFaces(size_t vertexIndex) const {
 
 /*! \lab1 Implement the curvature */
 float HalfEdgeMesh::VertexCurvature(size_t vertexIndex) const {
-  // Copy code from SimpleMesh or compute more accurate estimate
-  return 0;
+
+	std::vector<size_t> oneRing = FindNeighborVertices(vertexIndex);
+	assert(oneRing.size() != 0);
+
+	size_t curr, next;
+	const Vector3<float> &vi = mVerts.at(vertexIndex).pos;
+	float angleSum = 0;
+	float area = 0;
+	for (size_t i = 0; i < oneRing.size(); i++) {
+		// connections
+		curr = oneRing.at(i);
+		if (i < oneRing.size() - 1)
+			next = oneRing.at(i + 1);
+		else
+			next = oneRing.front();
+
+		// find vertices in 1-ring according to figure 5 in lab text
+		// next - beta
+		const Vector3<float> &nextPos = mVerts.at(next).pos;
+		const Vector3<float> &vj = mVerts.at(curr).pos;
+
+		// compute angle and area
+		angleSum += acos((vj - vi) * (nextPos - vi) /
+			((vj - vi).Length() * (nextPos - vi).Length()));
+		area += Cross((vi - vj), (nextPos - vj)).Length() * 0.5f;
+	}
+	return (2.0f * static_cast<float>(M_PI) - angleSum) / area;
 }
 
 float HalfEdgeMesh::FaceCurvature(size_t faceIndex) const {
@@ -316,10 +337,7 @@ Vector3<float> HalfEdgeMesh::FaceNormal(size_t faceIndex) const {
 }
 
 Vector3<float> HalfEdgeMesh::VertexNormal(size_t vertexIndex) const {
-
   Vector3<float> n(0, 0, 0);
-
-  // Add your code here
   std::vector<size_t> foundFaces = FindNeighborFaces(vertexIndex);
 
   for (int i = 0; i < foundFaces.size(); i++) {
@@ -410,8 +428,6 @@ void HalfEdgeMesh::Update() {
 /*! \lab1 Implement the area */
 float HalfEdgeMesh::Area() const {
   float area = 0;
-  // Add code here
-  //std::cerr << "Area calculation not implemented for half-edge mesh!\n";
 
   for (int i = 0; i < mFaces.size(); i++) {
 	  Vertex v1 = v(e(mFaces[i].edge).vert);
@@ -427,8 +443,20 @@ float HalfEdgeMesh::Area() const {
 /*! \lab1 Implement the volume */
 float HalfEdgeMesh::Volume() const {
   float volume = 0;
-  // Add code here
-  std::cerr << "Volume calculation not implemented for half-edge mesh!\n";
+  float sum = 0;
+  
+  for (int i = 0; i < mFaces.size(); i++) {
+	  Vector3<float> vert1 = v(e(mFaces.at(i).edge).vert).pos;
+	  Vector3<float> vert2 = v(e(e(mFaces[i].edge).next).vert).pos;
+	  Vector3<float> vert3 = v(e(e(mFaces[i].edge).prev).vert).pos;
+	  Vector3<float> normal = mFaces.at(i).normal;
+
+	  float crossProd = Cross((vert2-vert1), (vert3-vert1)).Length();
+	  float area = crossProd / 2;
+
+	  sum += ((vert1 + vert2 + vert3) / 3.0f)*normal*area;		
+  }
+  volume = sum / 3.0f;		
   return volume;
 }
 
