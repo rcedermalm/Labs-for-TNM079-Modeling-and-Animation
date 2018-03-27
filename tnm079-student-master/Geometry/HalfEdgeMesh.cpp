@@ -62,7 +62,7 @@ bool HalfEdgeMesh::AddFace(const std::vector<Vector3<float> > &verts) {
 
   // All half-edges share the same left face (previously added)
   e(heInd1).face = faceInd;
-  e(heInd3).face = faceInd;
+  e(heInd3).face = faceInd;     
   e(heInd5).face = faceInd;
 
   // Optionally, track the (outer) boundary half-edges
@@ -280,6 +280,7 @@ std::vector<size_t> HalfEdgeMesh::FindNeighborFaces(size_t vertexIndex) const {
   return foundFaces;
 }
 
+/* ------------------------------------------------------------------------------------------------------------------------------ Kolla om detta stämmer med Labbass*/
 /*! \lab1 Implement the curvature */
 float HalfEdgeMesh::VertexCurvature(size_t vertexIndex) const {
 
@@ -341,11 +342,9 @@ Vector3<float> HalfEdgeMesh::VertexNormal(size_t vertexIndex) const {
   std::vector<size_t> foundFaces = FindNeighborFaces(vertexIndex);
 
   for (int i = 0; i < foundFaces.size(); i++) {
-	  n += f(foundFaces[i]).normal;
+	  n += f(foundFaces.at(i)).normal;
   }
-
-  n = n.Normalize();
-
+  n.Normalize();
   return n;
 }
 
