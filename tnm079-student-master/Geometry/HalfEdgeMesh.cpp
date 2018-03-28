@@ -248,14 +248,14 @@ std::vector<size_t>
 HalfEdgeMesh::FindNeighborVertices(size_t vertexIndex) const {
   // Collected vertices, sorted counter clockwise!
   std::vector<size_t> oneRing;
-  HalfEdge edge = e(vertexIndex);
+  HalfEdge edge = e(v(vertexIndex).edge);
   size_t index = -1;
 
-  while (index != vertexIndex) {
+  do {
 	  oneRing.push_back(e(edge.next).vert);
 	  index = e(edge.prev).pair;
 	  edge = e(index);
-  }
+  } while (index != v(vertexIndex).edge);
 
   return oneRing;
 }
@@ -268,14 +268,14 @@ HalfEdgeMesh::FindNeighborVertices(size_t vertexIndex) const {
 std::vector<size_t> HalfEdgeMesh::FindNeighborFaces(size_t vertexIndex) const {
   // Collected faces, sorted counter clockwise!
   std::vector<size_t> foundFaces;
-  HalfEdge edge = e(vertexIndex);
+  HalfEdge edge = e(v(vertexIndex).edge);
   size_t index = -1;
 
-  while (index != vertexIndex) {
+  do {
 	  foundFaces.push_back(edge.face);
 	  index = e(edge.prev).pair;
 	  edge = e(index);
-  }
+  } while (index != v(vertexIndex).edge);
   
   return foundFaces;
 }
@@ -342,7 +342,7 @@ Vector3<float> HalfEdgeMesh::VertexNormal(size_t vertexIndex) const {
   std::vector<size_t> foundFaces = FindNeighborFaces(vertexIndex);
 
   for (int i = 0; i < foundFaces.size(); i++) {
-	  n += f(foundFaces.at(i)).normal;
+	  n += f(foundFaces[i]).normal;
   }
   n.Normalize();
   return n;
