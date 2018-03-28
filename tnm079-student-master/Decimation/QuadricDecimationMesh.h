@@ -45,8 +45,10 @@ protected:
   virtual void updateVertexProperties(size_t ind);
   //! Compute the quadric for a vertex
   Matrix4x4<float> createQuadricForVert(size_t indx) const;
-  //! Copmute the quadric for a face
+  //! Compute the quadric for a face
   Matrix4x4<float> createQuadricForFace(size_t indx) const;
+  //! Calculate outer product for a face
+  Matrix4x4<float> calculateK(Vector4<float> p) const;
   //! Render (redefined)
   virtual void Render();
 

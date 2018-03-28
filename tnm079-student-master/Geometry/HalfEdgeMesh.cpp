@@ -280,7 +280,6 @@ std::vector<size_t> HalfEdgeMesh::FindNeighborFaces(size_t vertexIndex) const {
   return foundFaces;
 }
 
-/* ------------------------------------------------------------------------------------------------------------------------------ Kolla om detta stämmer med Labbass*/
 /*! \lab1 Implement the curvature */
 float HalfEdgeMesh::VertexCurvature(size_t vertexIndex) const {
 
