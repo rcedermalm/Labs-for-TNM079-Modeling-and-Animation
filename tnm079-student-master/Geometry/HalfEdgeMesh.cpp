@@ -282,7 +282,7 @@ std::vector<size_t> HalfEdgeMesh::FindNeighborFaces(size_t vertexIndex) const {
 
 /*! \lab1 Implement the curvature */
 float HalfEdgeMesh::VertexCurvature(size_t vertexIndex) const {
-
+	/*// Gaussian Curvature
 	std::vector<size_t> oneRing = FindNeighborVertices(vertexIndex);
 	assert(oneRing.size() != 0);
 
@@ -308,7 +308,48 @@ float HalfEdgeMesh::VertexCurvature(size_t vertexIndex) const {
 			((vj - vi).Length() * (nextPos - vi).Length()));
 		area += Cross((vi - vj), (nextPos - vj)).Length() * 0.5f;
 	}
-	return (2.0f * static_cast<float>(M_PI) - angleSum) / area;
+	return (2.0f * static_cast<float>(M_PI) - angleSum) / area;*/
+
+	// Mean Curvature
+	std::vector<size_t> oneRing = FindNeighborVertices(vertexIndex);
+	assert(oneRing.size() != 0);
+
+	size_t curr, next, prev;
+	const Vector3<float> &vi = mVerts.at(vertexIndex).pos;
+	Vector3<float> angleSum = { 0, 0, 0 };
+	float area = 0;
+	for (size_t i = 0; i < oneRing.size(); i++) {
+		// connections
+		curr = oneRing.at(i);
+		if (i < oneRing.size() - 1)
+			next = oneRing.at(i + 1);
+		else
+			next = oneRing.front();
+
+		if (i == 0)
+			prev = oneRing.back();
+		else
+			prev = oneRing.at(i - 1);
+
+		// find vertices in 1-ring according to figure 5 in lab text
+		// next - beta
+		const Vector3<float> &prevPos = mVerts.at(prev).pos;
+		const Vector3<float> &nextPos = mVerts.at(next).pos;
+		const Vector3<float> &vj = mVerts.at(curr).pos;
+		
+		// compute angle and area
+		float alpha = Cotangent(vi, prevPos, vj);
+		float beta = Cotangent(vj, nextPos, vi);
+
+		angleSum += (alpha + beta) * (vi - vj);
+		area += Cross((vi - vj), (nextPos - vj)).Length() * 0.5f; // ---------------------------------------------------------------------------------------- AREA = 0?!?!?!?!??!?!?!??!?!
+		//area += (1/8) * ((alpha + beta) * pow((vi - vj).Length(), 2.0f));
+	}
+
+	Vector3<float> n = mVerts.at(vertexIndex).normal;
+	Vector3<float> nInv = { 1 / n[0], 1 / n[1], 1 / n[2] };
+
+	return ((1 / (4 * area)) * angleSum * nInv);
 }
 
 float HalfEdgeMesh::FaceCurvature(size_t faceIndex) const {
@@ -462,10 +503,15 @@ float HalfEdgeMesh::Volume() const {
 int HalfEdgeMesh::Shells() const { return 1; }
 
 /*! \lab1 Implement the genus */
-size_t HalfEdgeMesh::Genus() const {
-  // Add code here
-  std::cerr << "Genus calculation not implemented for half-edge mesh!\n";
-  return 0;
+size_t HalfEdgeMesh::Genus() const {   // ------------------------------------------------------------------------------------------- IS THIS CORRECT???????
+  auto E = mEdges.size();
+  auto V = mVerts.size();
+  auto F = mFaces.size();
+
+  std::cerr << "Number of edges: " << E << ", F: " << F << ", V: " << V << "\n";
+  return -(static_cast<int64_t>(V) - static_cast<int64_t>(E) +
+	  static_cast<int64_t>(F) - 2) /
+	  2;
 }
 
 void HalfEdgeMesh::Dilate(float amount) {
