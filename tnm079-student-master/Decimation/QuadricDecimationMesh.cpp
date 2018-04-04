@@ -45,7 +45,7 @@ void QuadricDecimationMesh::Initialize() {
  * \param[in,out] collapse The edge collapse object to (re-)compute,
  * DecimationMesh::EdgeCollapse
  */
-void QuadricDecimationMesh::computeCollapse(EdgeCollapse *collapse) { // -------------------------------------------------------------------------------------------------------------------------------- IT DOES NOT WORK, COW IS NO COW
+void QuadricDecimationMesh::computeCollapse(EdgeCollapse *collapse) {
   // Compute collapse->position and collapse->cost here
   // based on the quadrics at the edge endpoints
 	Matrix4x4<float> Q = mQuadrics[mEdges[collapse->halfEdge].vert] + mQuadrics[mEdges[mEdges[collapse->halfEdge].pair].vert];
@@ -54,12 +54,14 @@ void QuadricDecimationMesh::computeCollapse(EdgeCollapse *collapse) { // -------
 	Q_hat(3, 3) = 1;
 	
 	if (!Q_hat.IsSingular()) {
-		Q_hat.Inverse();
+		Q_hat = Q_hat.Inverse();
 		const Vector4<float> zero = { 0,0,0,1 };
 		const Vector4<float> v_new = Q_hat * zero;
+
 		const Vector3<float> pos_new = { v_new[0],v_new[1],v_new[2] };
 		collapse->position = pos_new;
-		collapse->cost = v_new*(Q*v_new);
+		const Vector4<float> mult = (Q*v_new);
+		collapse->cost = v_new*mult;
 	}		
 	else {
 		const Vector3<float> &v0 = mVerts[mEdges[collapse->halfEdge].vert].pos;
