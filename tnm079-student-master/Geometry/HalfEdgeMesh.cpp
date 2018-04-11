@@ -282,8 +282,8 @@ std::vector<size_t> HalfEdgeMesh::FindNeighborFaces(size_t vertexIndex) const {
 
 /*! \lab1 Implement the curvature */
 float HalfEdgeMesh::VertexCurvature(size_t vertexIndex) const {
-	/*// Gaussian Curvature
-	std::vector<size_t> oneRing = FindNeighborVertices(vertexIndex);
+	// Gaussian Curvature
+	/*std::vector<size_t> oneRing = FindNeighborVertices(vertexIndex);
 	assert(oneRing.size() != 0);
 
 	size_t curr, next;
@@ -338,18 +338,14 @@ float HalfEdgeMesh::VertexCurvature(size_t vertexIndex) const {
 		const Vector3<float> &vj = mVerts.at(curr).pos;
 		
 		// compute angle and area
-		float alpha = Cotangent(vi, prevPos, vj);
+		float alpha = Cotangent(vj, prevPos, vi);
 		float beta = Cotangent(vj, nextPos, vi);
 
 		angleSum += (alpha + beta) * (vi - vj);
-		area += Cross((vi - vj), (nextPos - vj)).Length() * 0.5f; // ---------------------------------------------------------------------------------------- AREA = 0?!?!?!?!??!?!?!??!?!
-		//area += (1/8) * ((alpha + beta) * pow((vi - vj).Length(), 2.0f));
+		area += (((alpha + beta) * pow((vi - vj).Length(), 2.0f))/ 8.0f);
 	}
-
-	Vector3<float> n = mVerts.at(vertexIndex).normal;
-	Vector3<float> nInv = { 1 / n[0], 1 / n[1], 1 / n[2] };
-
-	return ((1 / (4 * area)) * angleSum * nInv);
+	
+	return (angleSum / (4.0f * area)).Length();
 }
 
 float HalfEdgeMesh::FaceCurvature(size_t faceIndex) const {
@@ -503,8 +499,8 @@ float HalfEdgeMesh::Volume() const {
 int HalfEdgeMesh::Shells() const { return 1; }
 
 /*! \lab1 Implement the genus */
-size_t HalfEdgeMesh::Genus() const {   // ------------------------------------------------------------------------------------------- IS THIS CORRECT???????
-  auto E = mEdges.size();
+size_t HalfEdgeMesh::Genus() const {  
+  auto E = mEdges.size()/2.0f;
   auto V = mVerts.size();
   auto F = mFaces.size();
 
