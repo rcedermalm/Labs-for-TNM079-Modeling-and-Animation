@@ -139,7 +139,7 @@ Vector3<float> LoopSubdivisionMesh::EdgeRule(size_t edgeIndex) {
 	Vector3<float> &vb = v(e0p.vert).pos;
 	Vector3<float> &vu = v(e1p.vert).pos;
 	
-	return (3.0f*vl + 3.0f*vr + vb + vu) / 8.0f;
+	return ((3.0f*vl + 3.0f*vr) + (vb + vu)) / 8.0f;
 }
 
 //! Return weights for interior verts
