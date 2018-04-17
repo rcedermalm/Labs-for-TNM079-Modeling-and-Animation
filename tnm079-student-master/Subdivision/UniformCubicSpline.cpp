@@ -46,11 +46,28 @@ float UniformCubicSpline::GetBSplineValue(size_t i, float t) {
 Vector3<float> UniformCubicSpline::GetValue(float t) {
   Vector3<float> val;
   float sum = 0;
-  for (size_t i = 0; i < mCoefficients.size(); i++) {
-    float bval = GetBSplineValue(i, t);
-    val += mCoefficients.at(i) * bval;
-    sum += bval;
+  // Number of evaluations: 2397
+  for (float i = floor(t) - 2.0f; i <= floor(t) + 2.0f; i++) {
+	  if (i >= 0.0f && i < mCoefficients.size() && sum < 1.0f){
+		  float bval = GetBSplineValue(i, t);
+		  val += mCoefficients.at(i) * bval;
+		  sum += bval;
+	  }
   }
+
+  /* Probably not the wanted solution :P 
+  // Number of evaluations: 1599
+  for (size_t i = 0; i < mCoefficients.size(); i++) {
+	  if(std::abs(t - (float)i) >= 2.0f){
+		  continue;
+	  }
+	  else {
+		  float bval = GetBSplineValue(i, t);
+		  val += mCoefficients.at(i) * bval;
+		  sum += bval;
+	  }
+  }
+  */
   return val;
 }
 
