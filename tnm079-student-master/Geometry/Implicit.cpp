@@ -94,8 +94,19 @@ void Implicit::Initialize() {
 Vector3<float> Implicit::GetGradient(float x, float y, float z) const {
   // Implement finite difference evaluation of gradient at world coordinates
   // (x,y,z) Use mDelta variable as epsilon in eqn. 16 in lab text
-  std::cerr << "Implicit::GetGradient() not implemented" << std::endl;
-  return Vector3<float>(0, 0, 0);
+ // std::cerr << "Implicit::GetGradient() not implemented" << std::endl;
+
+  float value = GetValue(x, y, z);
+
+  float x0_h = GetValue(x + mDelta, y, z);
+  float y0_h = GetValue(x, y + mDelta, z);
+  float z0_h = GetValue(x, y, z + mDelta);
+
+  float dx = (x0_h - value) / mDelta;
+  float dy = (y0_h - value) / mDelta;
+  float dz = (z0_h - value) / mDelta;
+
+  return Vector3<float>(dx, dy, dz);
 }
 
 /*!
@@ -104,8 +115,21 @@ Vector3<float> Implicit::GetGradient(float x, float y, float z) const {
 float Implicit::GetCurvature(float x, float y, float z) const {
   // Implement finite difference evaluation of curvature at world coordinates
   // (x,y,z) Use mDelta variable as epsilon in eqn. 16 in lab text
-  std::cerr << "Implicit::GetCurvature() not implemented" << std::endl;
-  return 0;
+	float value = GetValue(x, y, z);
+
+	float x0_h_plus = GetValue(x + mDelta, y, z);
+	float y0_h_plus = GetValue(x, y + mDelta, z);
+	float z0_h_plus = GetValue(x, y, z + mDelta);
+
+	float x0_h_minus = GetValue(x - mDelta, y, z);
+	float y0_h_minus = GetValue(x, y - mDelta, z);
+	float z0_h_minus = GetValue(x, y, z - mDelta);
+
+	float dxx = (x0_h_plus - 2 * value + x0_h_minus) / (mDelta*mDelta);
+	float dyy = (y0_h_plus - 2 * value + y0_h_minus) / (mDelta*mDelta);
+	float dzz = (z0_h_plus - 2 * value + z0_h_minus) / (mDelta*mDelta);
+
+  return dxx+dyy+dzz;
 }
 
 float Implicit::ComputeArea(float dx) const { return 0; }
