@@ -133,6 +133,8 @@ Vector3<float> LevelSet::GetGradient(float x, float y, float z) const {
  */
 float LevelSet::GetCurvature(float x, float y, float z) const {
   return Implicit::GetCurvature(x, y, z);
+  //TransformWorldToGrid(x, y, z);
+  //return DiffXm(x, y, z);
 }
 
 void LevelSet::SetBoundingBox(const Bbox &b) {
@@ -219,91 +221,175 @@ int LevelSet::GetNarrowBandWidth() {
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::DiffXm(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::DiffXm(size_t i, size_t j, size_t k) const { 
+	float q_start = mGrid.GetValue(i, j, k);
+	float q_former = mGrid.GetValue(i - 1, j, k);
+
+	return (q_start - q_former) / mDx; 
+}
 
 //! \lab4
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::DiffXp(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::DiffXp(size_t i, size_t j, size_t k) const {
+	float q_start = mGrid.GetValue(i, j, k);
+	float q_next = mGrid.GetValue(i + 1, j, k);
+
+	return (q_next - q_start) / mDx;
+}
 
 //! \lab4
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::DiffXpm(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::DiffXpm(size_t i, size_t j, size_t k) const {
+	float q_next = mGrid.GetValue(i + 1, j, k);
+	float q_former = mGrid.GetValue(i - 1, j, k);
+
+	return (q_next - q_former) / (2 * mDx);
+}
 
 //! \lab4
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::Diff2Xpm(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::Diff2Xpm(size_t i, size_t j, size_t k) const {
+	float q_start = mGrid.GetValue(i, j, k);
+	float q_next = mGrid.GetValue(i + 1, j, k);
+	float q_former = mGrid.GetValue(i - 1, j, k);
+
+	return (q_next - (2 * q_start) + q_former) / pow(mDx, 2);
+}
 
 //! \lab4
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::DiffYm(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::DiffYm(size_t i, size_t j, size_t k) const {
+	float q_start = mGrid.GetValue(i, j, k);
+	float q_former = mGrid.GetValue(i, j - 1, k);
+
+	return (q_start - q_former) / mDx;
+}
 
 //! \lab4
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::DiffYp(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::DiffYp(size_t i, size_t j, size_t k) const {
+	float q_start = mGrid.GetValue(i, j, k);
+	float q_next = mGrid.GetValue(i, j + 1, k);
+
+	return (q_next - q_start) / mDx;
+}
 
 //! \lab4
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::DiffYpm(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::DiffYpm(size_t i, size_t j, size_t k) const {
+	float q_next = mGrid.GetValue(i, j + 1, k);
+	float q_former = mGrid.GetValue(i, j - 1, k);
+
+	return (q_next - q_former) / (2 * mDx);
+}
 
 //! \lab4
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::Diff2Ypm(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::Diff2Ypm(size_t i, size_t j, size_t k) const {
+	float q_start = mGrid.GetValue(i, j, k);
+	float q_next = mGrid.GetValue(i, j + 1, k);
+	float q_former = mGrid.GetValue(i, j - 1, k);
+
+	return (q_next - (2 * q_start) + q_former) / pow(mDx, 2);
+}
 
 //! \lab4
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::DiffZm(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::DiffZm(size_t i, size_t j, size_t k) const {
+	float q_start = mGrid.GetValue(i, j, k);
+	float q_former = mGrid.GetValue(i, j, k - 1);
+
+	return (q_start - q_former) / mDx;
+}
 
 //! \lab4
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::DiffZp(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::DiffZp(size_t i, size_t j, size_t k) const {
+	float q_start = mGrid.GetValue(i, j, k);
+	float q_next = mGrid.GetValue(i, j, k + 1);
+
+	return (q_next - q_start) / mDx;
+}
 
 //! \lab4
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::DiffZpm(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::DiffZpm(size_t i, size_t j, size_t k) const {
+	float q_next = mGrid.GetValue(i, j, k + 1);
+	float q_former = mGrid.GetValue(i, j, k - 1);
+
+	return (q_next - q_former) / (2 * mDx);
+}
 
 //! \lab4
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::Diff2Zpm(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::Diff2Zpm(size_t i, size_t j, size_t k) const {
+	float q_start = mGrid.GetValue(i, j, k);
+	float q_next = mGrid.GetValue(i, j, k + 1);
+	float q_former = mGrid.GetValue(i, j, k - 1);
+
+	return (q_next - (2 * q_start) + q_former) / pow(mDx, 2);
+}
 
 //! \lab4
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::Diff2XYpm(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::Diff2XYpm(size_t i, size_t j, size_t k) const {
+	float q_pp = mGrid.GetValue(i + 1, j + 1, k);
+	float q_pm = mGrid.GetValue(i + 1, j - 1, k);
+	float q_mm = mGrid.GetValue(i - 1, j - 1, k);
+	float q_mp = mGrid.GetValue(i - 1, j + 1, k);
+
+	return (q_pp - q_pm + q_mm - q_mp) / (4 * pow(mDx, 2));
+}
 
 //! \lab4
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::Diff2YZpm(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::Diff2YZpm(size_t i, size_t j, size_t k) const {
+	float q_pp = mGrid.GetValue(i, j + 1, k + 1);
+	float q_pm = mGrid.GetValue(i, j + 1, k - 1);
+	float q_mm = mGrid.GetValue(i, j - 1, k - 1);
+	float q_mp = mGrid.GetValue(i, j - 1, k + 1);
+
+	return (q_pp - q_pm + q_mm - q_mp) / (4 * pow(mDx, 2));
+}
 
 //! \lab4
 /*! Use the values in the grid (mGrid.GetValue) to compute the differentials */
 // By convention, we use (i,j,k) to represent grid coordinates, while (x,y,z)
 // represents world coordinates.
-float LevelSet::Diff2ZXpm(size_t i, size_t j, size_t k) const { return 0; }
+float LevelSet::Diff2ZXpm(size_t i, size_t j, size_t k) const {
+	float q_pp = mGrid.GetValue(i + 1, j, k + 1);
+	float q_pm = mGrid.GetValue(i + 1, j, k - 1);
+	float q_mm = mGrid.GetValue(i - 1, j, k - 1);
+	float q_mp = mGrid.GetValue(i - 1, j, k + 1);
+
+	return (q_pp - q_pm + q_mm - q_mp) / (4 * pow(mDx, 2));
+}
 
 float LevelSet::WENO(float v1, float v2, float v3, float v4, float v5) const {
   return 0;
