@@ -35,7 +35,7 @@ public:
 
   virtual float ComputeTimestep() {
     // Compute and return a stable timestep
-    return 1;
+    return pow(mLS->GetDx(), 2)/(6*mAlpha);
   }
 
   virtual void Propagate(float time) {
@@ -49,15 +49,38 @@ public:
       if (dt > time - elapsed)
         dt = time - elapsed;
       elapsed += dt;
-
+	  
       IntegrateEuler(dt);
       // IntegrateRungeKutta(dt);
     }
   }
 
   virtual float Evaluate(size_t i, size_t j, size_t k) {
-    // Compute the rate of change (dphi/dt)
-    return 0;
+	  float dx = mLS->DiffXpm(i, j, k);
+	  float dy = mLS->DiffYpm(i, j, k);
+	  float dz = mLS->DiffZpm(i, j, k);
+
+	  float dxx = mLS->Diff2Xpm(i, j, k);
+	  float dyy = mLS->Diff2Ypm(i, j, k);
+	  float dzz = mLS->Diff2Zpm(i, j, k);
+
+	  float dxy = mLS->Diff2XYpm(i, j, k);
+	  float dxz = mLS->Diff2ZXpm(i, j, k);
+	  float dyz = mLS->Diff2YZpm(i, j, k);
+
+	  // Compute the curvature kappa
+	  float d = (2 * pow((pow(dx, 2) + pow(dy, 2) + pow(dz, 2)), (3 / 2)));
+	  float kappa_1 = (pow(dx, 2) * (dyy + dzz) - 2 * dy*dz*dyz) / d;
+	  float kappa_2 = (pow(dy, 2) * (dxx + dzz) - 2 * dx*dz*dxz) / d;
+	  float kappa_3 = (pow(dz, 2) * (dxx + dyy) - 2 * dx*dy*dxy) / d;
+	  float kappa = kappa_1 + kappa_2 + kappa_3;
+
+	  // Compute the norm of the gradient
+	  Vector3<float> gradient = { dx, dy, dz };
+	  float norm = gradient.Length();
+
+      // Compute the rate of change (dphi/dt)
+	  return (mAlpha * kappa * norm);
   }
 };
 
