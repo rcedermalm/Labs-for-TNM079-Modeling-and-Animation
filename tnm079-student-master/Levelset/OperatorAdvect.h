@@ -32,7 +32,7 @@ protected:
 
 public:
   OperatorAdvect(LevelSet *LS, Function3D<Vector3<float>> *vf)
-      : LevelSetOperator(LS), mVectorField(vf) {}
+	  : LevelSetOperator(LS), mVectorField(vf) {}
 
   virtual float ComputeTimestep() {
     // Compute and return a stable timestep
@@ -40,7 +40,7 @@ public:
 	float dx = mLS->GetDx();
 	Vector3<float> V = mVectorField->GetMaxValue();
 
-	float dt = std::min(std::min(dx / V[0], dx / V[1]), dx / V[2]);
+	float dt = std::min(std::min(dx / abs(V[0]), dx / abs(V[1])), dx / abs(V[2]));
 
     return dt;
   }
@@ -48,18 +48,24 @@ public:
   virtual void Propagate(float time) {
     // Determine timestep for stability
     float dt = ComputeTimestep();
+	std::cerr << "time" << time;
 
+	//dt = mLS->GetDx();
+	std::cerr << "d" << dt;
+	
     // Propagate level set with stable timestep dt
     // until requested time is reached
     for (float elapsed = 0; elapsed < time;) {
 
-      if (dt > time - elapsed)
-        dt = time - elapsed;
+		if (dt > time - elapsed) {
+			dt = time - elapsed;
+		}
+	  
       elapsed += dt;
-
       IntegrateEuler(dt);
       // IntegrateRungeKutta(dt);
     }
+	
   }
 
   virtual float Evaluate(size_t i, size_t j, size_t k) {
