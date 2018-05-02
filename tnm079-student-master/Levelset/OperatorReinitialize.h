@@ -39,7 +39,7 @@ public:
     float dt = ComputeTimestep();
 
     // Report maximum norm of gradient before reinitialization
-    std::cerr << "Maximum gradient before reinit: " << MaxNormGradient()
+    std::cerr << "Maximum gradient before reinit hello: " << MaxNormGradient()
               << std::endl;
 
     // Propagate level set with stable timestep dt
@@ -49,8 +49,9 @@ public:
       GetGrid().Dilate();
 
       if (dt > time - elapsed)
-        dt = time - elapsed;
-      elapsed += dt;
+		  dt = time - elapsed;
+      
+	  elapsed += dt;
 
       IntegrateEuler(dt);
 

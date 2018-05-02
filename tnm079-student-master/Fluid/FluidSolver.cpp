@@ -158,10 +158,11 @@ void FluidSolver::ExternalForces(float dt) {
         // integrator is the explicit Euler.
         // TODO: Add code here
 
-          // OBS: DELETE FOLLOWING LINE, IT'S JUST HERE TO SUPPRESS A WARNING FOR UNUSED VARIABLES
-          x = 1.0f;
-          y = 1.0f;
-          z = 1.0f;
+		  if (IsFluid(i, j, k)) {
+			  TransformGridToWorld(i, j, k, x, y, z);
+			  Vector3<float> v2 = GetValue(x, y, z) + (dt * mExternalForces->GetValue(x, y, z));
+			  mVelocityField.SetValue(i, j, k, v2);
+		  }
       }
     }
   }
