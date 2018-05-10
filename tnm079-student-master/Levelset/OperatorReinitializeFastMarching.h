@@ -309,6 +309,7 @@ public :
       GetGrid().SetMask(i,j,k, false);
       iter++;
     }
+	iter = GetGrid().BeginNarrowBand();
 
     // Loop through all accepted narrowband points and update grid
     iterAccepted = mAccepted.begin();
@@ -360,8 +361,9 @@ protected :
       float ddyc = mLS->DiffYpm(i,j,k);
       float ddzc = mLS->DiffZpm(i,j,k);
       float normgrad2 = ddxc*ddxc + ddyc*ddyc + ddzc*ddzc;
-      if (maxGrad < normgrad2) maxGrad = normgrad2;
-
+	  if (maxGrad < normgrad2) {
+		  maxGrad = normgrad2;
+	  }
       iter++;
     }
    return std::sqrt(maxGrad);

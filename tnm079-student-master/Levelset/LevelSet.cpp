@@ -125,7 +125,11 @@ float LevelSet::GetValue(float x, float y, float z) const {
  * Evaluates gradient at (x,y,z) through discrete finite difference scheme.
  */
 Vector3<float> LevelSet::GetGradient(float x, float y, float z) const {
-  return Implicit::GetGradient(x, y, z);
+	TransformWorldToGrid(x, y, z);
+	float fx = DiffXpm(x, y, z);
+	float fy = DiffYpm(x, y, z);
+	float fz = DiffZpm(x, y, z);
+	return Vector3<float>(fx, fy, fz).Normalize();
 }
 
 /*!
@@ -259,7 +263,7 @@ float LevelSet::Diff2Xpm(size_t i, size_t j, size_t k) const {
 	float q_next = mGrid.GetValue(i + 1, j, k);
 	float q_former = mGrid.GetValue(i - 1, j, k);
 
-	return (q_next - (2 * q_start) + q_former) / pow(mDx, 2);
+	return (q_next - 2 * q_start + q_former) / pow(mDx, 2);
 }
 
 //! \lab4

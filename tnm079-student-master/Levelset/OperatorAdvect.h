@@ -35,14 +35,9 @@ public:
 	  : LevelSetOperator(LS), mVectorField(vf) {}
 
   virtual float ComputeTimestep() {
-    // Compute and return a stable timestep
-    // (Hint: Function3D::GetMaxValue())
-	float dx = mLS->GetDx();
-	Vector3<float> V = mVectorField->GetMaxValue();
-
-	float dt = std::min(std::min(dx / abs(V[0]), dx / abs(V[1])), dx / abs(V[2]));
-
-    return dt;
+	Vector3<float> maxV = mVectorField->GetMaxValue();
+	float theMax = std::max(std::max(std::abs(maxV[0]), std::abs(maxV[1])), std::abs(maxV[2]));
+	return (mLS->GetDx() / theMax)*0.9;
   }
 
   virtual void Propagate(float time) {
@@ -65,7 +60,6 @@ public:
       IntegrateEuler(dt);
       // IntegrateRungeKutta(dt);
     }
-	
   }
 
   virtual float Evaluate(size_t i, size_t j, size_t k) {
@@ -77,43 +71,32 @@ public:
 	// for this task.
 	float x = (float)i, y = (float)j, z = (float)k;
 	mLS->TransformGridToWorld(x, y, z);
-
 	Vector3<float> V = mVectorField->GetValue(x, y, z);
-
 	float ddx, ddy, ddz;
+
 	if (V[0] < 0) {
 		ddx = mLS->DiffXp(i, j, k);
 	}
-	else if (V[0] > 0) {
-		ddx = mLS->DiffXm(i, j, k);
-	}
 	else {
-		ddx = 0;
+		ddx = mLS->DiffXm(i, j, k);
 	}
 
 	if (V[1] < 0) {
 		ddy = mLS->DiffYp(i, j, k);
 	}
-	else if (V[1] > 0) {
-		ddy = mLS->DiffYm(i, j, k);
-	}
 	else {
-		ddy = 0;
+		ddy = mLS->DiffYm(i, j, k);
 	}
 
 	if (V[2] < 0) {
 		ddz = mLS->DiffZp(i, j, k);
 	}
-	else if (V[2] > 0) {
-		ddz = mLS->DiffZm(i, j, k);
-	}
 	else {
-		ddz = 0;
+		ddz = mLS->DiffZm(i, j, k);
 	}
 
 	Vector3<float> gradient = { ddx, ddy, ddz };
-
-	return (gradient * (-V));
+	return ((-1*V) * gradient);
   }
 };
 
