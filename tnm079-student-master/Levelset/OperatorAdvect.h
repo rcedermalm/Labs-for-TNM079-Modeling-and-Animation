@@ -35,9 +35,16 @@ public:
 	  : LevelSetOperator(LS), mVectorField(vf) {}
 
   virtual float ComputeTimestep() {
-	Vector3<float> maxV = mVectorField->GetMaxValue();
-	float theMax = std::max(std::max(std::abs(maxV[0]), std::abs(maxV[1])), std::abs(maxV[2]));
-	return (mLS->GetDx() / theMax)*0.9;
+
+	float dx = mLS->GetDx();
+	Vector3<float> V = mVectorField->GetMaxValue();
+	  
+	float dt = std::min(std::min(dx / abs(V[0]), dx / abs(V[1])), dx / abs(V[2]));
+	return dt;
+	//Vector3<float> maxV = mVectorField->GetMaxValue();
+	//float theMax = std::max(std::max(std::abs(maxV[0]), std::abs(maxV[1])), std::abs(maxV[2]));
+	
+	//return (mLS->GetDx() / theMax)*0.9;
   }
 
   virtual void Propagate(float time) {
