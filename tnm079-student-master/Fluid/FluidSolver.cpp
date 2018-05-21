@@ -171,6 +171,8 @@ void FluidSolver::ExternalForces(float dt) {
 void FluidSolver::SelfAdvection(float dt, int steps) {
 	// Copy the current velocity field
 	Volume<Vector3<float>> velocities = mVelocityField;
+	Vector3<float> velocityFieldValue = { 0.0f, 0.0f, 0.0f };
+	Vector3<float> particlePosition = { 0, 0, 0 };
 
 	for (int i = 0; i < mVoxels.GetDimX(); i++) {
 		for (int j = 0; j < mVoxels.GetDimY(); j++) {
@@ -186,6 +188,24 @@ void FluidSolver::SelfAdvection(float dt, int steps) {
 				// the grid points, use mVelocityField.GetValue(float i, float j, float
 				// k) for trilinear interpolation.
 				// TODO: Add code here
+
+				if (IsFluid(i, j, k)) {
+					velocityFieldValue = velocities.GetValue(i, j, k);
+					particlePosition = { (float)i, (float)j, (float)k };
+
+					for (int step = 0; step < steps; step++) {
+						// Trace back in time
+						particlePosition[0] -= (velocityFieldValue[0] * (dt / steps)) / mDx;
+						particlePosition[1] -= (velocityFieldValue[1] * (dt / steps)) / mDx;
+						particlePosition[2] -= (velocityFieldValue[2] * (dt / steps)) / mDx;
+
+						// Interpolate the velocity
+						velocityFieldValue = mVelocityField.GetValue(particlePosition[0], particlePosition[1], particlePosition[2]);
+					}
+
+					velocities.SetValue(i, j, k, velocityFieldValue);
+				}
+
 			}
 		}
 	}
@@ -209,6 +229,7 @@ void FluidSolver::EnforceDirichletBoundaryCondition() {
 				// the velocity to the boundary plane by setting the
 				// velocity to zero along the given dimension.
 
+				
 				if (IsFluid(i, j, k)) {
 					velocityFieldValue = mVelocityField.GetValue(i, j, k);
 
@@ -278,7 +299,7 @@ void FluidSolver::Projection() {
           // Compute entry for b vector (divergence of the velocity field:
           // \nabla \dot w_i,j,k)
           //(equation 13)
-
+		  
 		  divergenceV = (mVelocityField.GetValue(i + 1, j, k)[0] - mVelocityField.GetValue(i - 1, j, k)[0] +
 			  mVelocityField.GetValue(i, j + 1, k)[1] - mVelocityField.GetValue(i, j - 1, k)[1] +
 			  mVelocityField.GetValue(i, j, k + 1)[2] - mVelocityField.GetValue(i, j, k - 1)[2]) / (2.0f * mDx);
@@ -362,7 +383,7 @@ void FluidSolver::Projection() {
 		  Vector3<float> x_gradient = { dx, dy, dz };
 		  Vector3<float> new_value = (mVelocityField.GetValue(i, j, k) - x_gradient);
 
-		  mVelocityField.SetValue(i, j, k, new_value);
+		  mVelocityField.SetValue(i, j, k, new_value); 
 
         }
       }
