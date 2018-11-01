@@ -496,7 +496,41 @@ float HalfEdgeMesh::Volume() const {
 }
 
 /*! \lab1 Calculate the number of shells  */
-int HalfEdgeMesh::Shells() const { return 1; }
+int HalfEdgeMesh::Shells() const { 
+	std::set<size_t> verts;
+
+	for (size_t i = 0; i < mVerts.size(); i++) {
+		verts.insert(i);
+	}
+
+	int shell = 0;
+
+	while (!verts.empty()) {
+		std::set<size_t> frontier;
+		// push first vertex to frontier
+		std::set<size_t>::iterator it = verts.begin();
+		frontier.insert(*it);
+
+		while (!frontier.empty()) {
+			// expand first node
+			it = frontier.begin();
+			std::vector<size_t> n_verts = FindNeighborVertices(*it);
+
+			verts.erase(*it);
+			frontier.erase(*it);
+
+			for (int j = 0; j < n_verts.size(); j++) {
+				if (verts.count(n_verts[j]) > 0) {
+					frontier.insert(n_verts[j]);
+					verts.erase(n_verts[j]);
+				}
+			}
+		}
+		shell++;
+	}
+
+	return shell;
+}
 
 /*! \lab1 Implement the genus */
 size_t HalfEdgeMesh::Genus() const {  
@@ -505,9 +539,9 @@ size_t HalfEdgeMesh::Genus() const {
   auto F = mFaces.size();
 
   std::cerr << "Number of edges: " << E << ", F: " << F << ", V: " << V << "\n";
-  return -(static_cast<int64_t>(V) - static_cast<int64_t>(E) +
-	  static_cast<int64_t>(F) - 2) /
-	  2;
+  
+  int G = ((E - V - F) / 2) + Shells();
+  return G;
 }
 
 void HalfEdgeMesh::Dilate(float amount) {
